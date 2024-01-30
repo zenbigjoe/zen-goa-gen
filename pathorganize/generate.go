@@ -27,8 +27,6 @@ func ReplaceGen(s string) (res string) {
 		res = strings.Replace(res, "gen/", "/", -1)
 		res = strings.Replace(res, "\\gen", "\\", 1)
 		res = strings.Replace(res, "/gen", "/", 1)
-
-		// res = strings.Replace(res, "gen\\gen\\", "gen\\", -1)
 		return
 	}
 	res = s
@@ -45,20 +43,6 @@ func Generate(genpkg string, roots []eval.Root, files []*codegen.File) ([]*codeg
 		if strings.Contains(f.Path, "http\\openapi") || strings.Contains(f.Path, "http/openapi") {
 			fn := filepath.Base(f.Path)
 			f.Path = fmt.Sprintf("../../api/%s", fn)
-		}
-
-		for _, s := range f.SectionTemplates {
-			hd, ok := s.Data.(map[string]interface{})
-			if !ok {
-				continue
-			}
-			specs, ok := hd["Imports"].([]*codegen.ImportSpec)
-			if !ok {
-				continue
-			}
-			for _, is := range specs {
-				is.Path = ReplaceGen(is.Path)
-			}
 		}
 	}
 	return files, nil
@@ -87,12 +71,17 @@ func UpdateExample(genpkg string, roots []eval.Root, files []*codegen.File) ([]*
 			if !ok {
 				continue
 			}
+
 			specs, ok := hd["Imports"].([]*codegen.ImportSpec)
 			if !ok {
 				continue
 			}
+
 			for _, is := range specs {
-				is.Path = ReplaceGen(is.Path)
+				// fmt.Printf("example: %s %s\n", is.Name, is.Path)
+				if is.Name == "kensho" {
+					is.Path = strings.Replace(is.Path, "/internal/endpoint", "/internal/endpoint/implement", 1)
+				}
 			}
 			if isSvc {
 				hd["Pkg"] = "implement"
