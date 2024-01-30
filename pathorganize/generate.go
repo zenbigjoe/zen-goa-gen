@@ -75,7 +75,7 @@ func UpdateExample(genpkg string, roots []eval.Root, files []*codegen.File) ([]*
 		isSvc := false
 		if strings.Contains(f.Path, "\\") == false && strings.Contains(f.Path, "/") == false {
 			fn := filepath.Base(f.Path)
-			f.Path = fmt.Sprintf("../endpoint/logic/%s", fn)
+			f.Path = fmt.Sprintf("../internal/logic/%s", fn)
 			isSvc = true
 		}
 
