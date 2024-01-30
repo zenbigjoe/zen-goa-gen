@@ -22,9 +22,12 @@ var needReplace = true
 
 func ReplaceGen(s string) (res string) {
 	if needReplace {
-		res = strings.Replace(s, "\\", "gen/", -1)
-		res = strings.Replace(res, "gen/gen/", "", -1)
-		res = strings.Replace(res, "gen/", "", -1)
+		res = strings.Replace(s, "\\", "gen/", 1)
+		res = strings.Replace(res, "gen/gen/", "/", -1)
+		res = strings.Replace(res, "gen/", "/", -1)
+		res = strings.Replace(res, "\\gen", "\\", 1)
+		res = strings.Replace(res, "/gen", "/", 1)
+
 		// res = strings.Replace(res, "gen\\gen\\", "gen\\", -1)
 		return
 	}
@@ -41,7 +44,7 @@ func Generate(genpkg string, roots []eval.Root, files []*codegen.File) ([]*codeg
 		// rewrite openapi output path
 		if strings.Contains(f.Path, "http\\openapi") || strings.Contains(f.Path, "http/openapi") {
 			fn := filepath.Base(f.Path)
-			f.Path = fmt.Sprintf("../api/%s", fn)
+			f.Path = fmt.Sprintf("../../api/%s", fn)
 		}
 
 		for _, s := range f.SectionTemplates {
@@ -67,15 +70,15 @@ func UpdateExample(genpkg string, roots []eval.Root, files []*codegen.File) ([]*
 		// rewrite base path
 		f.Path = ReplaceGen(f.Path)
 		if strings.Contains(f.Path, "cmd\\") || strings.Contains(f.Path, "cmd/") {
-			f.Path = strings.Replace(f.Path, "cmd\\", "..\\cmd\\goa-", -1)
-			f.Path = strings.Replace(f.Path, "cmd/", "../cmd/goa-", -1)
+			f.Path = strings.Replace(f.Path, "cmd\\", "..\\..\\cmd\\goa-", -1)
+			f.Path = strings.Replace(f.Path, "cmd/", "..\\../cmd/goa-", -1)
 		}
 
 		// rewrite implementation path
 		isSvc := false
 		if strings.Contains(f.Path, "\\") == false && strings.Contains(f.Path, "/") == false {
 			fn := filepath.Base(f.Path)
-			f.Path = fmt.Sprintf("../internal/logic/%s", fn)
+			f.Path = fmt.Sprintf("../endpoint/implement/%s", fn)
 			isSvc = true
 		}
 
@@ -92,7 +95,7 @@ func UpdateExample(genpkg string, roots []eval.Root, files []*codegen.File) ([]*
 				is.Path = ReplaceGen(is.Path)
 			}
 			if isSvc {
-				hd["Pkg"] = "logic"
+				hd["Pkg"] = "implement"
 			}
 		}
 	}
