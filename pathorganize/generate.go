@@ -42,7 +42,7 @@ func Generate(genpkg string, roots []eval.Root, files []*codegen.File) ([]*codeg
 		// rewrite openapi output path
 		if strings.Contains(f.Path, "http\\openapi") || strings.Contains(f.Path, "http/openapi") {
 			fn := filepath.Base(f.Path)
-			f.Path = fmt.Sprintf("../../api/%s", fn)
+			f.Path = fmt.Sprintf("../../../api/%s", fn)
 		}
 	}
 	return files, nil
@@ -50,19 +50,27 @@ func Generate(genpkg string, roots []eval.Root, files []*codegen.File) ([]*codeg
 
 // UpdateExample is update example files path
 func UpdateExample(genpkg string, roots []eval.Root, files []*codegen.File) ([]*codegen.File, error) {
+	var pkgType string
+	if strings.Contains(genpkg, "frontend") {
+		pkgType = "frontend"
+	}
+	if strings.Contains(genpkg, "admin") {
+		pkgType = "admin"
+	}
+
 	for _, f := range files {
 		// rewrite base path
 		f.Path = ReplaceGen(f.Path)
 		if strings.Contains(f.Path, "cmd\\") || strings.Contains(f.Path, "cmd/") {
-			f.Path = strings.Replace(f.Path, "cmd\\", "..\\..\\cmd\\goa-", -1)
-			f.Path = strings.Replace(f.Path, "cmd/", "..\\../cmd/goa-", -1)
+			f.Path = strings.Replace(f.Path, "cmd\\", "..\\..\\..\\cmd\\goa-", -1)
+			f.Path = strings.Replace(f.Path, "cmd/", "../../../cmd/goa-", -1)
 		}
 
 		// rewrite implementation path
 		isSvc := false
 		if strings.Contains(f.Path, "\\") == false && strings.Contains(f.Path, "/") == false {
 			fn := filepath.Base(f.Path)
-			f.Path = fmt.Sprintf("../endpoint/noop/%s", fn)
+			f.Path = fmt.Sprintf("../../endpoint/noop/%s/%s", pkgType, fn)
 			isSvc = true
 		}
 
@@ -78,7 +86,7 @@ func UpdateExample(genpkg string, roots []eval.Root, files []*codegen.File) ([]*
 			}
 
 			for _, is := range specs {
-				// fmt.Printf("example: %s %s\n", is.Name, is.Path)
+				//fmt.Printf("example: %s %s %s\n", genpkg, is.Name, is.Path)
 				if is.Name == "kensho" {
 					is.Path = strings.Replace(is.Path, "/internal/endpoint", "/internal/endpoint/noop", 1)
 				}
