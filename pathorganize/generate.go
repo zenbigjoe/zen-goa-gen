@@ -62,7 +62,7 @@ func UpdateExample(genpkg string, roots []eval.Root, files []*codegen.File) ([]*
 		isSvc := false
 		if strings.Contains(f.Path, "\\") == false && strings.Contains(f.Path, "/") == false {
 			fn := filepath.Base(f.Path)
-			f.Path = fmt.Sprintf("../endpoint/implement/%s", fn)
+			f.Path = fmt.Sprintf("../endpoint/noop/%s", fn)
 			isSvc = true
 		}
 
@@ -80,11 +80,11 @@ func UpdateExample(genpkg string, roots []eval.Root, files []*codegen.File) ([]*
 			for _, is := range specs {
 				// fmt.Printf("example: %s %s\n", is.Name, is.Path)
 				if is.Name == "kensho" {
-					is.Path = strings.Replace(is.Path, "/internal/endpoint", "/internal/endpoint/implement", 1)
+					is.Path = strings.Replace(is.Path, "/internal/endpoint", "/internal/endpoint/noop", 1)
 				}
 			}
 			if isSvc {
-				hd["Pkg"] = "implement"
+				hd["Pkg"] = "noop"
 			}
 		}
 	}
